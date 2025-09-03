@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en" class="dark-theme" style="color-scheme: dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.3/dist/tailwind.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sui dApp Starter</title>
+
+  <style>
+    :root {
+      --brand-gradient: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      --interactive-gradient: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      --deposit-gradient: linear-gradient(45deg, #10b981, #3b82f6);
+      --break-gradient: linear-gradient(45deg, #ef4444, #f97316);
+
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.15);
+
+      --text-primary: #f8fafc;
+      /* slate-50 */
+      --text-secondary: #a1a1aa;
+      /* zinc-400 */
+
+      --accent-green: #4ade80;
+      --accent-yellow: #fbbf24;
+      --accent-red: #ff6b6b;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: var(--text-primary);
+      overscroll-behavior-y: none;
+    }
+
+    /* Custom Scrollbar for Webkit browsers */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--glass-border);
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.3);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Style for datetime-local picker icon to be visible on dark themes */
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.8);
+      transition: filter 0.2s ease-in-out;
+      cursor: pointer;
+    }
+
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+      filter: invert(1);
+    }
+
+    /* Remove default number input spinners */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    /* Adding some subtle animations for component mounting */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* You can apply this class to top-level containers of your components for a nice effect */
+    .animate-fade-in {
+      animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    /* Example of extending Tailwind using @layer */
+    @layer components {
+
+      /* A utility for the brand text gradient seen in the header */
+      .brand-text-gradient {
+        background: var(--brand-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* A reusable class for the glassmorphism card effect */
+      .glass-card-base {
+        background-color: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        /* For Safari */
+        border: 1px solid var(--glass-border);
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+
+      .glass-card-base:hover {
+        background-color: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
