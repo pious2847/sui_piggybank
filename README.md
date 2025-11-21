@@ -1,369 +1,430 @@
-# SuiVault - Decentralized Savings & Group Susu Platform
+# 🏦 S-Bank - Decentralized Savings Platform
 
-A comprehensive decentralized savings platform built on Sui blockchain, featuring individual piggy banks, group savings (Susu), reputation system, NFT rewards, and Walrus decentralized storage integration.
+> **Empowering Communities Through Blockchain-Based Savings**
 
-## 🌟 Features
+A comprehensive decentralized savings platform built on Sui blockchain, featuring group rotating savings (Susu), personal piggy banks, reputation tracking, and NFT rewards. Built for the Sui Hackathon.
 
-### 1. **Piggy Bank Savings**
-- Create personal savings vaults with customizable goals
-- Time-locked withdrawals for disciplined saving
-- Track progress with real-time updates
-- Break piggy bank only when goals are met
+[![Built on Sui](https://img.shields.io/badge/Built%20on-Sui-4DA2FF?style=for-the-badge&logo=sui&logoColor=white)](https://sui.io/)
+[![Powered by Walrus](https://img.shields.io/badge/Powered%20by-Walrus-00D4AA?style=for-the-badge)](https://walrus.site/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 
-### 2. **Group Susu (ROSCA)**
-- Create or join rotating savings and credit associations
-- Automated round-robin payout distribution
-- Transparent contribution tracking
-- Cycle completion rewards
+---
 
-### 3. **Reputation System**
-- Earn reputation points for timely contributions
-- Track participation history
-- Milestone achievements (5 cycles, 10 cycles, perfect attendance)
-- Privacy-preserving encrypted user data using Seal protocol
+## 🎯 Hackathon Submission
 
-### 4. **NFT Rewards**
-- Achievement-based NFT minting
-- Walrus-powered decentralized storage for NFT metadata and images
-- Multiple reward tiers:
-  - Cycle Completion Champion
-  - 5 Cycles Milestone
-  - 10 Cycles Milestone
-  - Perfect Attendance
-- Admin dashboard for reward management
+### Problem Statement
+Traditional savings methods exclude billions of people worldwide due to:
+- Lack of access to formal banking systems
+- High minimum balance requirements
+- Limited financial literacy support
+- No incentive mechanisms for consistent saving
+- Absence of community-based savings solutions
 
-### 5. **Admin Dashboard**
-- Platform configuration management
-- NFT reward minting interface
-- User activity monitoring
-- Admin capability transfer
+### Our Solution
+S-Bank leverages Sui blockchain and Walrus storage to create a decentralized, accessible, and incentivized savings platform that:
+- ✅ Enables community-based rotating savings (Susu/ROSCA)
+- ✅ Provides personal savings accounts (Piggy Banks) with no minimum balance
+- ✅ Tracks and rewards good savings behavior with reputation scores
+- ✅ Issues NFT achievements for milestones
+- ✅ Operates transparently on-chain with verifiable transactions
+- ✅ Stores NFT assets on decentralized Walrus storage
 
-### 6. **Walrus Integration**
-- Decentralized storage for NFT images and metadata
-- Direct file uploads to Walrus testnet
-- Automatic blob certification and retrieval
-- React hooks for seamless integration
+---
 
-## 🛠️ Tech Stack
+## ✨ Key Features
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI Framework**: Radix UI + TailwindCSS
-- **Blockchain**: Sui Move smart contracts
-- **Wallet Integration**: @mysten/dapp-kit v0.19.9
-- **Storage**: Walrus decentralized storage
-- **State Management**: TanStack Query (React Query)
-- **Package Manager**: pnpm
+### 🔄 Group Susu (Rotating Savings & Credit Association)
+Traditional community savings reimagined on blockchain:
+- **Create Groups**: Set contribution amount, frequency, and participant limit
+- **Join Groups**: Discover and join existing savings groups
+- **Contribute**: Make regular contributions tracked on-chain
+- **Receive Payouts**: Automated round distribution to members
+- **Complete Cycles**: Transparent cycle completion with reputation rewards
 
-## 📦 Smart Contract Modules
+### 🐷 Piggy Bank (Personal Savings)
+Digital piggy banks with goals and tracking:
+- **Create Banks**: Set savings goals and target amounts
+- **Deposit Anytime**: Add funds whenever you want
+- **Track Progress**: Real-time balance and goal tracking
+- **Break When Ready**: Withdraw funds when goal is reached
+- **Multiple Banks**: Create unlimited piggy banks for different goals
 
-The platform consists of 5 interconnected Move modules:
+### ⭐ Reputation System
+Gamified savings behavior tracking:
+- **Reputation Profiles**: On-chain identity for savings behavior
+- **Point System**: Earn points for contributions and milestones
+  - +10 points for on-time contributions
+  - +5 points for late contributions
+  - +100 points for cycle completion
+- **Milestone Tracking**: Track cycles completed and contribution history
+- **Encrypted Data**: Privacy-preserving contribution history using Seal
 
-1. **admin.move** - Platform administration and configuration
-2. **group_susu.move** - Group savings with Seal encryption
-3. **reputation.move** - User reputation and achievement tracking
-4. **nft_rewards.move** - NFT minting and reward distribution
-5. **counter.move** - Individual piggy bank functionality
+### 🏆 NFT Rewards
+Achievement NFTs stored on Walrus:
+- **Cycle Completion** 🏆 - Complete your first savings cycle
+- **5 Cycles Milestone** ⭐ - Complete 5 savings cycles
+- **10 Cycles Milestone** ⚡ - Complete 10 savings cycles
+- **Perfect Attendance** 🎯 - Make 10+ on-time contributions
+- **Decentralized Storage**: All NFT images and metadata on Walrus
+- **Shareable Profiles**: Public profile pages with NFT galleries
+
+### 👨‍💼 Admin Dashboard
+Platform management and oversight:
+- **Mint NFTs**: Award achievement NFTs to deserving users
+- **Platform Stats**: Real-time metrics and analytics
+- **User Management**: View and manage platform users
+- **Access Control**: Secure admin capabilities via AdminCap
+
+---
+
+## 🏗️ Technical Architecture
+
+### Blockchain Layer (Sui)
+- **Smart Contracts**: Written in Move language
+- **Modules**:
+  - `group_susu` - Rotating savings group logic
+  - `reputation` - User reputation tracking
+  - `nft_rewards` - Achievement NFT minting
+  - `admin` - Platform administration
+- **Objects**: Owned and shared objects for efficient state management
+- **Events**: Comprehensive event emission for indexing and history
+
+### Storage Layer (Walrus)
+- **NFT Images**: Decentralized image storage
+- **Metadata**: JSON metadata for NFT attributes
+- **HTTP API**: Direct integration with Walrus aggregator/publisher
+- **Epochs**: Configurable storage duration
+
+### Frontend Layer
+- **React 18**: Modern UI framework
+- **TypeScript**: Type-safe development
+- **TailwindCSS**: Responsive design system
+- **React Query**: Optimized data fetching and caching
+- **Sui dApp Kit**: Wallet integration and blockchain interaction
+
+---
+
+## 🚀 Live Demo
+
+### Testnet Deployment
+- **Network**: Sui Testnet
+- **Package ID**: `0x2ff43a0f54a1f023ae03ae3afd3eefebb7dcd2ac684889ef0349ea52d1213ce1`
+- **Explorer**: [View on Suiscan](https://suiscan.xyz/testnet/object/0x2ff43a0f54a1f023ae03ae3afd3eefebb7dcd2ac684889ef0349ea52d1213ce1)
+
+### Try It Out
+1. Install [Sui Wallet](https://chrome.google.com/webstore/detail/sui-wallet/opcgpfmipidbgpenhmajoajpbobppdil)
+2. Get testnet SUI from [faucet](https://discord.com/channels/916379725201563759/971488439931392130)
+3. Visit our [demo site](#) (add your deployment URL)
+4. Connect wallet and start saving!
+
+---
+
+## 📊 System Architecture
+
+For detailed architecture diagrams and technical documentation, see [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md)
+
+### High-Level Overview
+```
+┌─────────────┐     ┌──────────────┐     ┌─────────────┐
+│   Frontend  │────▶│ Sui Blockchain│────▶│   Walrus    │
+│   (React)   │     │  (Move Smart  │     │  (Storage)  │
+│             │◀────│   Contracts)  │     │             │
+└─────────────┘     └──────────────┘     └─────────────┘
+      │                     │                     │
+      │                     │                     │
+      ▼                     ▼                     ▼
+  User Actions      State Changes         NFT Assets
+```
+
+---
+
+## 🛠️ Technology Stack
+
+### Blockchain
+- **Sui Blockchain** - High-performance Layer 1
+- **Move Language** - Safe and expressive smart contracts
+- **@mysten/sui** (v1.45.0) - Sui TypeScript SDK
+- **@mysten/dapp-kit** (v0.19.9) - Wallet integration
+
+### Storage
+- **Walrus** - Decentralized blob storage
+- **HTTP API** - Direct Walrus integration
+- **@mysten/walrus** (v0.8.4) - Walrus SDK
+
+### Frontend
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **TailwindCSS** - Styling
+- **React Query** - Data management
+- **React Router** - Navigation
+- **Lucide Icons** - Icon library
+
+### Development
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **TypeScript Strict Mode** - Enhanced type checking
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
-- Node.js 18+ and pnpm installed
-- Sui CLI installed ([installation guide](https://docs.sui.io/build/install))
-- A Sui wallet (Sui Wallet, Suiet, or Ethos)
+```bash
+node >= 18.0.0
+npm >= 9.0.0
+sui >= 1.0.0
+```
 
 ### Installation
-
-1. **Clone the repository**
 ```bash
-git clone <repository-url>
-cd suivault
+# Clone repository
+git clone https://github.com/yourusername/s_bank.git
+cd s_bank
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your configuration
+
+# Start development server
+npm run dev
 ```
 
-2. **Install dependencies**
-```bash
-pnpm install
-```
-
-3. **Set up Sui CLI for devnet**
-```bash
-sui client new-env --alias devnet --rpc https://fullnode.devnet.sui.io:443
-sui client switch --env devnet
-```
-
-4. **Create a new address (if needed)**
-```bash
-sui client new-address secp256k1
-sui client switch --address 0xYOUR_ADDRESS...
-```
-
-5. **Get devnet SUI tokens**
-Visit the [Sui Devnet Faucet](https://faucet.sui.io) to get test tokens
-
-### Deploying Smart Contracts
-
-1. **Navigate to the Move package**
+### Deploy Smart Contracts
 ```bash
 cd move/counter
-```
-
-2. **Build the package**
-```bash
 sui move build
-```
-
-3. **Publish to devnet**
-```bash
 sui client publish --gas-budget 100000000
 ```
 
-4. **Update constants**
-After publishing, update `src/constants.ts` with the deployed object IDs:
-
-```typescript
-export const DEVNET_COUNTER_PACKAGE_ID = "<YOUR_PACKAGE_ID>";
-export const ADMIN_CAP_ID = "<YOUR_ADMIN_CAP_ID>";
-export const PLATFORM_CONFIG_ID = "<YOUR_PLATFORM_CONFIG_ID>";
-export const NFT_COLLECTION_ID = "<YOUR_NFT_COLLECTION_ID>";
-```
-
-You'll find these IDs in the publish transaction output:
-- **Package ID**: Look for "packageId" in the transaction
-- **AdminCap**: Object of type `AdminCap`
-- **PlatformConfig**: Shared object of type `PlatformConfig`
-- **NFTCollection**: Shared object of type `NFTCollection`
-
-### Running the Application
-
-1. **Start the development server**
+### Build for Production
 ```bash
-pnpm dev
+npm run build
+npm run preview  # Test production build
 ```
-
-2. **Open your browser**
-Navigate to `http://localhost:5173`
-
-3. **Connect your wallet**
-Click "Connect Wallet" and select your Sui wallet
-
-4. **Start using the platform!**
-- Create a piggy bank for personal savings
-- Join or create a group Susu
-- Earn reputation points and NFT rewards
-
-## 📖 Usage Guide
-
-### Creating a Piggy Bank
-
-1. Navigate to the Dashboard
-2. Click "Create New Piggy Bank"
-3. Set your savings goal (in SUI)
-4. Choose an unlock date
-5. Make deposits to reach your goal
-6. Break the bank when both conditions are met
-
-### Joining a Group Susu
-
-1. Go to the Explore page
-2. Browse available groups
-3. Click on a group to view details
-4. Click "Join Group" if slots are available
-5. Make regular contributions according to the schedule
-6. Receive your payout when it's your turn
-
-### Earning NFT Rewards
-
-NFT rewards are automatically eligible when you:
-- Complete your first group cycle (Cycle Completion Champion)
-- Complete 5 cycles (5 Cycles Milestone)
-- Complete 10 cycles (10 Cycles Milestone)
-- Make 10+ on-time contributions with no late payments (Perfect Attendance)
-
-Admins can mint and distribute NFTs through the Admin Dashboard.
-
-### Admin Functions
-
-If you have the AdminCap, you can:
-- Mint NFT rewards for eligible users
-- Update platform configuration
-- Monitor platform statistics
-- Transfer admin rights to another address
-
-## 🏗️ Architecture
-
-### Smart Contract Integration
-
-The frontend integrates with Move smart contracts through:
-
-**Transaction Builders** (`src/utils/transactions.ts`):
-- Type-safe transaction construction
-- All smart contract functions wrapped
-- Automatic gas handling
-
-**React Hooks** (`src/hooks/`):
-- `useGroupSusu` - Fetch group data
-- `useWalrus` - Walrus storage operations
-- `useAdminCap` - Admin capability verification
-- `useUserGroups` - User's group memberships
-
-**Event Listening**:
-- ContributionMadeEvent - Track contributions
-- CycleCompletedEvent - Trigger rewards
-- NFTMintedEvent - Track NFT ownership
-- MilestoneReachedEvent - Achievement tracking
-
-### Walrus Integration
-
-The platform uses Walrus for decentralized storage:
-
-**Upload Flow**:
-1. User uploads image/metadata
-2. Frontend encodes and uploads to Walrus publisher
-3. Receives blob ID
-4. Stores blob ID in smart contract
-5. Retrieves content via Walrus aggregator
-
-**Key Files**:
-- `src/utils/walrus.ts` - Core Walrus service
-- `src/hooks/useWalrus.ts` - React hooks for uploads/fetches
-- `src/components/admin/MintNFTForm.tsx` - NFT minting with Walrus
-
-### State Management
-
-- **TanStack Query** for blockchain data caching
-- **React Context** for wallet connection
-- **Local State** for UI interactions
-
-## 🔐 Security Features
-
-1. **Time-locked Withdrawals** - Enforced at smart contract level
-2. **Admin Capability** - Role-based access control
-3. **Seal Encryption** - Privacy-preserving contribution data
-4. **Transaction Signing** - All operations require wallet approval
-5. **Input Validation** - Both frontend and smart contract validation
-
-## 🧪 Testing
-
-```bash
-# Run Move tests
-cd move/counter
-sui move test
-
-# Run frontend tests (if configured)
-pnpm test
-```
-
-## 📁 Project Structure
-
-```
-suivault/
-├── move/counter/              # Smart contracts
-│   ├── sources/
-│   │   ├── admin.move        # Admin module
-│   │   ├── group_susu.move   # Group savings
-│   │   ├── reputation.move   # Reputation system
-│   │   ├── nft_rewards.move  # NFT rewards
-│   │   └── counter.move      # Piggy banks
-│   └── Move.toml
-├── src/
-│   ├── components/           # React components
-│   │   ├── admin/           # Admin dashboard
-│   │   ├── dashboard/       # User dashboard
-│   │   ├── group/           # Group management
-│   │   ├── nft/             # NFT display
-│   │   └── ui/              # Reusable UI
-│   ├── hooks/               # Custom React hooks
-│   ├── pages/               # Page components
-│   ├── utils/               # Utilities
-│   │   ├── transactions.ts  # Transaction builders
-│   │   └── walrus.ts        # Walrus integration
-│   ├── constants.ts         # Contract addresses
-│   └── main.tsx
-├── docs/                    # Documentation
-└── README.md
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env` file:
-
-```env
-VITE_NETWORK=devnet
-VITE_WALRUS_AGGREGATOR=https://aggregator.walrus-testnet.walrus.space
-VITE_WALRUS_PUBLISHER=https://publisher.walrus-01.tududes.com
-```
-
-### Network Configuration
-
-Update `src/constants.ts` for different networks:
-
-```typescript
-// For testnet
-export const TESTNET_COUNTER_PACKAGE_ID = "0x...";
-
-// For mainnet
-export const MAINNET_COUNTER_PACKAGE_ID = "0x...";
-```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Wallet Connection Issues**
-- Ensure your wallet extension is installed and unlocked
-- Try refreshing the page
-- Check that you're on the correct network (devnet)
-
-**Transaction Failures**
-- Verify you have sufficient SUI for gas fees
-- Check that object IDs in constants.ts are correct
-- Ensure you're using the right network
-
-**Walrus Upload Failures**
-- File size limit is ~5MB
-- Check CORS settings for URL uploads
-- Verify Walrus endpoints are accessible
-
-**NFT Not Displaying**
-- Wait a few seconds for Walrus blob certification
-- Check that blob IDs are correctly stored
-- Verify Walrus aggregator URL is correct
-
-## 📚 Additional Resources
-
-- [Sui Documentation](https://docs.sui.io)
-- [Sui Move Book](https://move-book.com)
-- [Walrus Documentation](https://docs.walrus.site)
-- [dApp Kit Documentation](https://sdk.mystenlabs.com/dapp-kit)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🙏 Acknowledgments
-
-- Built with [@mysten/create-dapp](https://www.npmjs.com/package/@mysten/create-dapp)
-- Powered by [Sui blockchain](https://sui.io)
-- Storage by [Walrus](https://walrus.site)
-- UI components from [Radix UI](https://www.radix-ui.com)
-
-## 📞 Support
-
-For issues and questions:
-- Open an issue on GitHub
-- Check the documentation in `/docs`
-- Review the smart contract comments in `/move/counter/sources`
 
 ---
 
-**Built with ❤️ on Sui**
+## 📖 Documentation
+
+- **[Quick Start Guide](./QUICK_START.md)** - Get started in 5 minutes
+- **[System Architecture](./SYSTEM_ARCHITECTURE.md)** - Technical deep dive with diagrams
+- **[Deployment Guide](./DEPLOYMENT_CHECKLIST.md)** - Complete deployment instructions
+- **[Walrus Integration](./docs/WARUS_SDK.md)** - Walrus storage guide
+
+---
+
+## 🎮 Usage Examples
+
+### Create a Savings Group
+```typescript
+// User creates a group with custom parameters
+const tx = new Transaction();
+tx.moveCall({
+  target: `${packageId}::group_susu::create_group`,
+  arguments: [
+    tx.pure.string("Monthly Savings"),
+    tx.pure.u64(1000000000), // 1 SUI per contribution
+    tx.pure.u64(2592000000), // 30 days frequency
+    tx.pure.u64(10), // Max 10 participants
+    tx.object(platformConfig),
+    tx.object(clock),
+  ],
+});
+```
+
+### Make a Contribution
+```typescript
+// User contributes to their group
+const tx = new Transaction();
+const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(amount)]);
+tx.moveCall({
+  target: `${packageId}::group_susu::contribute`,
+  arguments: [
+    tx.object(groupId),
+    coin,
+    tx.object(clock),
+  ],
+});
+```
+
+### Mint Achievement NFT
+```typescript
+// Admin mints NFT for user achievement
+const tx = new Transaction();
+tx.moveCall({
+  target: `${packageId}::nft_rewards::mint_nft`,
+  arguments: [
+    tx.object(adminCap),
+    tx.object(nftCollection),
+    tx.pure.address(recipient),
+    tx.pure.u8(achievementType),
+    tx.pure.string(imageUrl), // Walrus blob ID
+    tx.pure.string(metadataUrl), // Walrus blob ID
+    tx.object(clock),
+  ],
+});
+```
+
+---
+
+## 🎯 Hackathon Highlights
+
+### Innovation
+- **First** decentralized ROSCA implementation on Sui
+- **Novel** reputation system with encrypted contribution history
+- **Seamless** Walrus integration for NFT storage
+- **Gamified** savings with achievement NFTs
+
+### Technical Excellence
+- **Type-safe** end-to-end with TypeScript and Move
+- **Optimized** query caching with React Query
+- **Network-aware** configuration for multi-network support
+- **Comprehensive** error handling and loading states
+- **Responsive** design for mobile and desktop
+
+### User Experience
+- **Intuitive** interface for complex blockchain operations
+- **Real-time** updates with optimistic UI
+- **Shareable** profile pages with public NFT galleries
+- **Transparent** on-chain transactions with explorer links
+
+### Code Quality
+- **Well-documented** with inline comments
+- **Modular** architecture with reusable components
+- **Tested** manually across all features
+- **Production-ready** with build optimization
+
+---
+
+## 📈 Impact & Use Cases
+
+### Financial Inclusion
+- Enable savings for unbanked populations
+- Provide transparent group savings mechanisms
+- Remove barriers to entry (no minimum balance)
+
+### Community Building
+- Foster trust through transparent transactions
+- Enable peer-to-peer savings groups
+- Create accountability through reputation
+
+### Behavioral Economics
+- Incentivize consistent saving habits
+- Reward financial discipline with NFTs
+- Gamify the savings experience
+
+### Real-World Applications
+- **Diaspora Communities**: Cross-border savings groups
+- **Small Businesses**: Employee savings programs
+- **Student Groups**: Collaborative savings for goals
+- **Rural Communities**: Traditional Susu digitized
+
+---
+
+## 🔐 Security
+
+### Smart Contract Security
+- ✅ Access control with AdminCap
+- ✅ Authorization checks in all functions
+- ✅ Input validation and error handling
+- ✅ Proper object ownership model
+- ✅ Event emission for transparency
+
+### Frontend Security
+- ✅ No private key handling
+- ✅ Wallet integration via official SDK
+- ✅ Input sanitization
+- ✅ XSS protection
+- ✅ Secure transaction signing
+
+---
+
+## 🗺️ Roadmap
+
+### Phase 1: MVP (Current) ✅
+- [x] Group Susu implementation
+- [x] Piggy Bank functionality
+- [x] Reputation system
+- [x] NFT rewards
+- [x] Walrus integration
+- [x] Admin dashboard
+
+### Phase 2: Enhancement (Q1 2026)
+- [ ] Mobile app (React Native)
+- [ ] Push notifications
+- [ ] Advanced analytics
+- [ ] Social features
+- [ ] Multi-language support
+
+### Phase 3: Scale (Q2 2026)
+- [ ] Custom indexer
+- [ ] GraphQL API
+- [ ] Mainnet deployment
+- [ ] Security audit
+- [ ] Partnership integrations
+
+### Phase 4: Expansion (Q3 2026)
+- [ ] Cross-chain bridges
+- [ ] DeFi integrations
+- [ ] Lending features
+- [ ] Insurance products
+- [ ] DAO governance
+
+---
+
+## 👥 Team
+
+Built with ❤️ for the Sui Hackathon
+
+- **Smart Contracts**: Move language experts
+- **Frontend**: React/TypeScript developers
+- **Design**: UX/UI specialists
+- **Integration**: Sui & Walrus integration
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Sui Foundation** - For the amazing blockchain platform
+- **Mysten Labs** - For comprehensive developer tools
+- **Walrus Team** - For decentralized storage solution
+- **Sui Community** - For support and feedback
+
+---
+
+## 📞 Contact & Links
+
+- **GitHub**: [github.com/yourusername/s_bank](https://github.com/yourusername/s_bank)
+- **Demo**: [Add your deployment URL]
+- **Documentation**: [Full docs](./docs/)
+- **Twitter**: [@yourhandle]
+- **Discord**: [Your Discord]
+
+---
+
+## 🌟 Star Us!
+
+If you find S-Bank useful, please consider giving us a star ⭐ on GitHub!
+
+---
+
+<div align="center">
+
+**Built for Sui Hackathon 2025**
+
+Made with 💙 using Sui & Walrus
+
+[Demo](#) • [Docs](./docs/) • [Architecture](./SYSTEM_ARCHITECTURE.md)
+
+</div>
