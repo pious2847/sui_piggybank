@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSuiClient } from "@mysten/dapp-kit";
 import { groupSusuQueryConfig, getUserGroupsQueryKey } from "../queryConfig";
-import { TESTNET_COUNTER_PACKAGE_ID } from "../constants";
+import { useNetworkVariable } from "../networkConfig";
 
 export interface GroupSusuMembership {
   id: string;
@@ -25,17 +25,18 @@ export interface GroupSusuMembership {
  */
 export function useUserGroups(address: string | undefined) {
   const suiClient = useSuiClient();
+  const counterPackageId = useNetworkVariable("counterPackageId");
 
   return useQuery({
-    queryKey: getUserGroupsQueryKey(address || ""),
+    queryKey: getUserGroupsQueryKey(address || "", counterPackageId),
     queryFn: async () => {
-      if (!address) return [];
+      if (!address || !counterPackageId) return [];
 
       try {
         // Query for all GroupCreatedEvent events to find all groups
         const response = await suiClient.queryEvents({
           query: {
-            MoveEventType: `${TESTNET_COUNTER_PACKAGE_ID}::group_susu::GroupCreatedEvent`,
+            MoveEventType: `${counterPackageId}::group_susu::GroupCreatedEvent`,
           },
           limit: 50,
           order: "descending",

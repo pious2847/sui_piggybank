@@ -99,6 +99,7 @@ storybook-static
 # Temporary folders
 tmp/
 temp/
+.kiro
 
 # OS generated files
 Thumbs.db

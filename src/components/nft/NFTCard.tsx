@@ -65,12 +65,12 @@ export function NFTCard({
 
   // Construct Walrus image URL
   const imageUrl = nft.imageUrl 
-    ? `${walrusAggregatorUrl}/v1/${nft.imageUrl}`
+    ? `${walrusAggregatorUrl}/v1/blobs/${nft.imageUrl}`
     : null;
 
   // Construct Walrus metadata URL
   const metadataUrl = nft.metadataUrl
-    ? `${walrusAggregatorUrl}/v1/${nft.metadataUrl}`
+    ? `${walrusAggregatorUrl}/v1/blobs/${nft.metadataUrl}`
     : null;
 
   const handleImageLoad = () => {

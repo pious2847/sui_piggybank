@@ -8,30 +8,76 @@ interface SavingsChartProps {
 }
 
 export const SavingsChart = memo(function SavingsChart({ piggyBanks, groupMemberships }: SavingsChartProps) {
-  // Generate mock historical data for the chart
+  // Calculate current totals from real data
+  const { totalPiggyBankSavings, totalGroupSavings } = useMemo(() => {
+    // Calculate total from piggy banks
+    const piggyBankTotal = piggyBanks.reduce((sum, bank) => {
+      // Handle nested structure: bank.data.content.fields.balance
+      const content = bank.data?.content;
+      if (content && "fields" in content) {
+        const fields = content.fields as any;
+        const balance = Number(fields.balance || 0);
+        return sum + balance;
+      }
+      return sum;
+    }, 0);
+
+    // Calculate total from group memberships
+    // Groups show user's contribution (position * contribution amount)
+    const groupTotal = groupMemberships.reduce((sum, group) => {
+      const userContribution = (group.userPosition || 0) * (group.contributionAmount || 0);
+      return sum + userContribution;
+    }, 0);
+
+    return {
+      totalPiggyBankSavings: piggyBankTotal / 1_000_000_000,
+      totalGroupSavings: groupTotal / 1_000_000_000,
+    };
+  }, [piggyBanks, groupMemberships]);
+
+  // Generate chart data showing growth trend
   const chartData = useMemo(() => {
     const data = [];
     const now = Date.now();
     const daysToShow = 30;
 
+    // If no data, show empty chart
+    if (totalPiggyBankSavings === 0 && totalGroupSavings === 0) {
+      for (let i = daysToShow; i >= 0; i--) {
+        const date = new Date(now - i * 24 * 60 * 60 * 1000);
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        
+        data.push({
+          date: dateStr,
+          piggyBanks: 0,
+          groups: 0,
+          total: 0,
+        });
+      }
+      return data;
+    }
+
+    // Show growth trend leading to current totals
     for (let i = daysToShow; i >= 0; i--) {
       const date = new Date(now - i * 24 * 60 * 60 * 1000);
       const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       
-      // Simulate growing savings over time
-      const piggyBankSavings = piggyBanks.length * (daysToShow - i) * 0.5;
-      const groupSavings = groupMemberships.length * (daysToShow - i) * 0.3;
+      // Calculate progress percentage (0% at start, 100% at current day)
+      const progressPercent = (daysToShow - i) / daysToShow;
+      
+      const piggyBankValue = totalPiggyBankSavings * progressPercent;
+      const groupValue = totalGroupSavings * progressPercent;
       
       data.push({
         date: dateStr,
-        piggyBanks: Number((piggyBankSavings / 1_000_000_000).toFixed(2)),
-        groups: Number((groupSavings / 1_000_000_000).toFixed(2)),
-        total: Number(((piggyBankSavings + groupSavings) / 1_000_000_000).toFixed(2)),
+        piggyBanks: Number(piggyBankValue.toFixed(2)),
+        groups: Number(groupValue.toFixed(2)),
+        total: Number((piggyBankValue + groupValue).toFixed(2)),
       });
     }
 
     return data;
-  }, [piggyBanks.length, groupMemberships.length]);
+  }, [totalPiggyBankSavings, totalGroupSavings]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -63,6 +109,8 @@ export const SavingsChart = memo(function SavingsChart({ piggyBanks, groupMember
     return null;
   };
 
+  const hasData = totalPiggyBankSavings > 0 || totalGroupSavings > 0;
+
   return (
     <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-3xl p-6 shadow-2xl">
       <div className="mb-6">
@@ -71,11 +119,25 @@ export const SavingsChart = memo(function SavingsChart({ piggyBanks, groupMember
           Savings Progress
         </h2>
         <Text className="text-slate-400 text-sm">
-          Track your savings growth over the last 30 days
+          {hasData 
+            ? `Track your savings growth over the last 30 days`
+            : `Your savings progress will appear here once you start saving`
+          }
         </Text>
       </div>
 
-      <div className="h-80">
+      {!hasData ? (
+        <div className="h-80 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-6xl mb-4">💰</div>
+            <Text className="text-slate-400 text-lg mb-2">No Savings Yet</Text>
+            <Text className="text-slate-500 text-sm">
+              Create a piggy bank or join a group to start tracking your progress
+            </Text>
+          </div>
+        </div>
+      ) : (
+        <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
@@ -124,19 +186,32 @@ export const SavingsChart = memo(function SavingsChart({ piggyBanks, groupMember
             />
           </AreaChart>
         </ResponsiveContainer>
-      </div>
+        </div>
+      )}
 
-      {/* Legend */}
-      <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-white/10">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
-          <Text className="text-slate-300 text-sm">Piggy Banks</Text>
+      {/* Legend and Current Totals */}
+      {hasData && (
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
+                <Text className="text-slate-300 text-sm">Piggy Banks</Text>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-violet-500"></div>
+                <Text className="text-slate-300 text-sm">Groups</Text>
+              </div>
+            </div>
+            <div className="text-right">
+              <Text className="text-slate-400 text-xs">Current Total</Text>
+              <Text className="text-emerald-400 text-lg font-bold">
+                {(totalPiggyBankSavings + totalGroupSavings).toFixed(2)} SUI
+              </Text>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-violet-500"></div>
-          <Text className="text-slate-300 text-sm">Groups</Text>
-        </div>
-      </div>
+      )}
     </div>
   );
 });

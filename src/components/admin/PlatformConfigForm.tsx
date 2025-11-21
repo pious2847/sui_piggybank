@@ -5,7 +5,8 @@ import { useSignAndExecute, getTransactionErrorMessage } from "../../hooks/useSi
 import { TransactionConfirmationModal } from "../TransactionConfirmationModal";
 import { usePlatformConfig } from "../../hooks/usePlatformConfig";
 import { updatePlatformConfigTx } from "../../utils/transactions";
-import { DEVNET_COUNTER_PACKAGE_ID, PLATFORM_CONFIG_ID } from "../../constants";
+import { PLATFORM_CONFIG_ID } from "../../constants";
+import { useNetworkVariable } from "../../networkConfig";
 
 export interface PlatformConfigFormProps {
   adminCapId: string;
@@ -17,6 +18,7 @@ export interface PlatformConfigFormProps {
  */
 export function PlatformConfigForm({ adminCapId }: PlatformConfigFormProps) {
   const currentAccount = useCurrentAccount();
+  const counterPackageId = useNetworkVariable("counterPackageId");
   const { data: config, isLoading: isLoadingConfig } = usePlatformConfig();
   const { execute, status, result, error, reset } = useSignAndExecute();
   const [showModal, setShowModal] = useState(false);
@@ -50,7 +52,7 @@ export function PlatformConfigForm({ adminCapId }: PlatformConfigFormProps) {
 
     // Build the transaction
     const tx = updatePlatformConfigTx(
-      DEVNET_COUNTER_PACKAGE_ID,
+      counterPackageId,
       adminCapId,
       PLATFORM_CONFIG_ID,
       nftMintingEnabled,

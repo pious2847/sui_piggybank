@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSuiClient } from "@mysten/dapp-kit";
-import { TESTNET_COUNTER_PACKAGE_ID } from "../constants";
+import { useNetworkVariable } from "../networkConfig";
 import { GroupSusu } from "./useGroupSusu";
 
 export interface GroupFilters {
@@ -28,15 +28,25 @@ export function useAllGroups(
   limit: number = 20
 ) {
   const suiClient = useSuiClient();
+  const counterPackageId = useNetworkVariable("counterPackageId");
 
   return useQuery({
-    queryKey: ["allGroups", filters, cursor, limit],
+    queryKey: ["allGroups", filters, cursor, limit, counterPackageId],
     queryFn: async (): Promise<PaginatedGroupsResult> => {
+      if (!counterPackageId) {
+        return {
+          groups: [],
+          hasNextPage: false,
+          nextCursor: null,
+          totalCount: 0,
+        };
+      }
+
       try {
         // Query for all GroupSusu objects using GroupCreatedEvent
         const response = await suiClient.queryEvents({
           query: {
-            MoveEventType: `${TESTNET_COUNTER_PACKAGE_ID}::group_susu::GroupCreatedEvent`,
+            MoveEventType: `${counterPackageId}::group_susu::GroupCreatedEvent`,
           },
           limit: limit,
           order: "descending",

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSuiClient } from "@mysten/dapp-kit";
-import { TESTNET_COUNTER_PACKAGE_ID } from "../constants";
+import { useNetworkVariable } from "../networkConfig";
 import { 
   reputationQueryConfig, 
   getReputationProfileQueryKey, 
@@ -32,18 +32,19 @@ export interface ReputationEvent {
  */
 export function useReputationProfile(address: string | undefined) {
   const suiClient = useSuiClient();
+  const counterPackageId = useNetworkVariable("counterPackageId");
 
   return useQuery({
-    queryKey: getReputationProfileQueryKey(address || ""),
+    queryKey: getReputationProfileQueryKey(address || "", counterPackageId),
     queryFn: async () => {
-      if (!address) return null;
+      if (!address || !counterPackageId) return null;
 
       try {
         // Query for ReputationProfile objects owned by the user
         const { data } = await suiClient.getOwnedObjects({
           owner: address,
           filter: {
-            StructType: `${TESTNET_COUNTER_PACKAGE_ID}::reputation::ReputationProfile`,
+            StructType: `${counterPackageId}::reputation::ReputationProfile`,
           },
           options: {
             showContent: true,
@@ -92,17 +93,18 @@ export function useReputationProfile(address: string | undefined) {
  */
 export function useReputationEvents(address: string | undefined) {
   const suiClient = useSuiClient();
+  const counterPackageId = useNetworkVariable("counterPackageId");
 
   return useQuery({
-    queryKey: getReputationEventsQueryKey(address || ""),
+    queryKey: getReputationEventsQueryKey(address || "", counterPackageId),
     queryFn: async () => {
-      if (!address) return [];
+      if (!address || !counterPackageId) return [];
 
       try {
         // Query for ReputationEvent events
         const events = await suiClient.queryEvents({
           query: {
-            MoveEventType: `${TESTNET_COUNTER_PACKAGE_ID}::reputation::ReputationEvent`,
+            MoveEventType: `${counterPackageId}::reputation::ReputationEvent`,
           },
           limit: 50,
           order: "descending",

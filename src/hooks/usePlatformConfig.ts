@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSuiClient } from "@mysten/dapp-kit";
-import { TESTNET_COUNTER_PACKAGE_ID } from "../constants";
+import { useNetworkVariable } from "../networkConfig";
+import { PLATFORM_CONFIG_ID } from "../constants";
 
 export interface PlatformConfig {
   id: string;
@@ -15,36 +16,34 @@ export interface PlatformConfig {
  */
 export function usePlatformConfig() {
   const suiClient = useSuiClient();
+  const counterPackageId = useNetworkVariable("counterPackageId");
 
   return useQuery({
-    queryKey: ["platformConfig"],
+    queryKey: ["platformConfig", counterPackageId, PLATFORM_CONFIG_ID],
     queryFn: async () => {
+      if (!counterPackageId || !PLATFORM_CONFIG_ID) return null;
+
       try {
-        // Query for PlatformConfig shared object
-        // Note: In production, you'd want to know the object ID or use an indexer
-        const { data } = await suiClient.getOwnedObjects({
-          owner: TESTNET_COUNTER_PACKAGE_ID,
-          filter: {
-            StructType: `${TESTNET_COUNTER_PACKAGE_ID}::admin::PlatformConfig`,
-          },
+        // Use the known PLATFORM_CONFIG_ID from env
+        const object = await suiClient.getObject({
+          id: PLATFORM_CONFIG_ID,
           options: {
             showContent: true,
             showType: true,
           },
         });
 
-        if (data.length === 0) {
+        if (!object.data) {
           return null;
         }
 
-        const configObject = data[0];
-        const content = configObject.data?.content;
+        const content = object.data.content;
 
         if (content && "fields" in content) {
           const fields = content.fields as any;
           
           return {
-            id: configObject.data?.objectId || "",
+            id: object.data.objectId || "",
             admin: fields.admin || "",
             nftMintingEnabled: fields.nft_minting_enabled || false,
             minReputationForRewards: Number(fields.min_reputation_for_rewards || 0),

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { DEVNET_COUNTER_PACKAGE_ID, NFT_COLLECTION_ID } from "../../constants";
+import { NFT_COLLECTION_ID } from "../../constants";
+import { useNetworkVariable } from "../../networkConfig";
 import { LoadingSpinner } from "../../LoadingSpinner";
 import { useWalrusUpload, useWalrusUploadJSON } from "../../hooks/useWalrus";
 import { getWalrusUrl } from "../../utils/walrus";
@@ -35,6 +36,7 @@ export function MintNFTForm({
   const [mintStatus, setMintStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
+  const counterPackageId = useNetworkVariable("counterPackageId");
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const { mutateAsync: uploadFile } = useWalrusUpload();
   const { mutateAsync: uploadJSON } = useWalrusUploadJSON();
@@ -65,7 +67,7 @@ export function MintNFTForm({
 
     try {
       // 1. Upload image to Walrus using the hook
-      const imageBlobId = await uploadFile({ data: imageFile, epochs: 5 });
+      const imageBlobId = await uploadFile({ data: imageFile });
       setUploadStatus(`Image uploaded: ${imageBlobId.slice(0, 8)}...`);
 
       // 2. Create and upload metadata JSON to Walrus
@@ -86,7 +88,7 @@ export function MintNFTForm({
       };
 
       setUploadStatus("Uploading metadata to Walrus...");
-      const metadataBlobId = await uploadJSON({ data: metadata, epochs: 5 });
+      const metadataBlobId = await uploadJSON({ data: metadata });
       setUploadStatus(`Metadata uploaded: ${metadataBlobId.slice(0, 8)}...`);
 
       // 3. Create transaction to mint NFT
@@ -97,7 +99,7 @@ export function MintNFTForm({
 
       // Use the NFT_COLLECTION_ID constant (shared object)
       tx.moveCall({
-        target: `${DEVNET_COUNTER_PACKAGE_ID}::nft_rewards::mint_reward`,
+        target: `${counterPackageId}::nft_rewards::mint_reward`,
         arguments: [
           tx.object(adminCapId),
           tx.object(NFT_COLLECTION_ID),

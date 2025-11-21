@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSuiClient } from "@mysten/dapp-kit";
-import { TESTNET_COUNTER_PACKAGE_ID } from "../constants";
+import { useNetworkVariable } from "../networkConfig";
 import { NFTData } from "../components/nft/NFTCard";
 import { nftQueryConfig, getUserNFTsQueryKey, getNFTMintEventsQueryKey } from "../queryConfig";
 
@@ -10,18 +10,23 @@ import { nftQueryConfig, getUserNFTsQueryKey, getNFTMintEventsQueryKey } from ".
  */
 export function useUserNFTs(address: string | undefined) {
   const suiClient = useSuiClient();
+  const counterPackageId = useNetworkVariable("counterPackageId");
 
   return useQuery({
-    queryKey: getUserNFTsQueryKey(address || ""),
+    queryKey: getUserNFTsQueryKey(address || "", counterPackageId),
     queryFn: async () => {
-      if (!address) return [];
+      if (!address || !counterPackageId) return [];
 
       try {
+        console.log('Fetching NFTs for address:', address);
+        console.log('Using package ID:', counterPackageId);
+        console.log('Looking for type:', `${counterPackageId}::nft_rewards::NFTReward`);
+        
         // Query for NFTReward objects owned by the user
         const { data } = await suiClient.getOwnedObjects({
           owner: address,
           filter: {
-            StructType: `${TESTNET_COUNTER_PACKAGE_ID}::nft_rewards::NFTReward`,
+            StructType: `${counterPackageId}::nft_rewards::NFTReward`,
           },
           options: {
             showContent: true,
@@ -29,12 +34,16 @@ export function useUserNFTs(address: string | undefined) {
           },
         });
 
+        console.log('NFT query response:', data);
+        console.log('Found', data.length, 'NFT objects');
+
         // Parse NFT data from the response
         const nfts: NFTData[] = data
           .map((obj) => {
             const content = obj.data?.content;
             if (content && "fields" in content) {
               const fields = content.fields as any;
+              console.log('NFT fields:', fields);
               
               return {
                 id: obj.data?.objectId || "",
@@ -54,6 +63,7 @@ export function useUserNFTs(address: string | undefined) {
         // Sort by earned date (most recent first)
         nfts.sort((a, b) => b.earnedAt - a.earnedAt);
 
+        console.log('Parsed NFTs:', nfts);
         return nfts;
       } catch (error) {
         console.error("Error fetching user NFTs:", error);
@@ -71,17 +81,18 @@ export function useUserNFTs(address: string | undefined) {
  */
 export function useNFTMintEvents(address: string | undefined) {
   const suiClient = useSuiClient();
+  const counterPackageId = useNetworkVariable("counterPackageId");
 
   return useQuery({
-    queryKey: getNFTMintEventsQueryKey(address || ""),
+    queryKey: getNFTMintEventsQueryKey(address || "", counterPackageId),
     queryFn: async () => {
-      if (!address) return [];
+      if (!address || !counterPackageId) return [];
 
       try {
         // Query for NFTMintedEvent events
         const events = await suiClient.queryEvents({
           query: {
-            MoveEventType: `${TESTNET_COUNTER_PACKAGE_ID}::nft_rewards::NFTMintedEvent`,
+            MoveEventType: `${counterPackageId}::nft_rewards::NFTMintedEvent`,
           },
           limit: 50,
           order: "descending",

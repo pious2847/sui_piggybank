@@ -6,15 +6,17 @@ import { Transaction } from "@mysten/sui/transactions";
 import { Button, Flex, Text } from "@radix-ui/themes";
 import { useNetworkVariable } from "./networkConfig";
 import { useState, useCallback, useMemo, memo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import ClipLoader from "react-spinners/ClipLoader";
 import { getPiggyBankFields } from "./PiggyBankDisplay";
-import { actionValidationQueryConfig, getPiggyBankActionsQueryKey } from "./queryConfig";
+import { actionValidationQueryConfig, getPiggyBankActionsQueryKey, getPiggyBankDetailsQueryKey } from "./queryConfig";
 const SUI_CLOCK_OBJECT_ID = "0x6";
 
 // Helper to convert SUI to MIST
 const SUI_TO_MIST = 1_000_000_000;
 
 const PiggyBankActions = memo(function PiggyBankActions({ bankId, onAction }: { bankId: string; onAction?: () => void }) {
+  const queryClient = useQueryClient();
 
   const { data, isPending: isQueryPending } = useSuiClientQuery(
     "getObject",
@@ -61,6 +63,8 @@ const PiggyBankActions = memo(function PiggyBankActions({ bankId, onAction }: { 
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [depositAmount, setDepositAmount] = useState("1.0"); // Default deposit amount in SUI
   const [showConfirmBreak, setShowConfirmBreak] = useState(false);
+  const [depositSuccess, setDepositSuccess] = useState(false);
+  const [isBroken, setIsBroken] = useState(false); // Track if bank has been broken
 
   // Deposit: uses splitCoins to create a new coin of the specified amount
   const deposit = useCallback(() => {
@@ -84,16 +88,38 @@ const PiggyBankActions = memo(function PiggyBankActions({ bankId, onAction }: { 
     signAndExecute(
       { transaction: tx },
       {
-        onSuccess: () => {
-          onAction?.();
+        onSuccess: (result) => {
+          console.log('Deposit successful!', {
+            digest: result.digest,
+            bankId,
+            amount: depositAmount,
+            explorerLink: `https://suiscan.xyz/testnet/tx/${result.digest}`,
+          });
+          
+          // Show success message
+          setDepositSuccess(true);
+          setTimeout(() => setDepositSuccess(false), 3000);
+          
+          // Wait a bit for blockchain to update, then invalidate queries
+          setTimeout(() => {
+            console.log('Invalidating queries for bankId:', bankId);
+            queryClient.invalidateQueries({ queryKey: getPiggyBankDetailsQueryKey(bankId) });
+            queryClient.invalidateQueries({ queryKey: getPiggyBankActionsQueryKey(bankId) });
+            onAction?.();
+          }, 1500); // 1.5 second delay
+          
           setDepositAmount("1.0"); // Reset to default
+        },
+        onError: (error) => {
+          console.error('Deposit failed:', error);
+          alert(`Deposit failed: ${error.message}`);
         },
         onSettled: () => {
           setPendingAction(null);
         }
       },
     );
-  }, [depositAmount, bankId, counterPackageId, signAndExecute, onAction]);
+  }, [depositAmount, bankId, counterPackageId, signAndExecute, onAction, queryClient]);
 
   // Break PiggyBank: uses the constant SUI_CLOCK_OBJECT_ID
   const breakBank = useCallback(() => {
@@ -107,17 +133,59 @@ const PiggyBankActions = memo(function PiggyBankActions({ bankId, onAction }: { 
     signAndExecute(
       { transaction: tx },
       {
-        onSuccess: () => {
-          onAction?.();
+        onSuccess: (result) => {
+          console.log('Piggy bank broken successfully!', {
+            digest: result.digest,
+            bankId,
+            explorerLink: `https://suiscan.xyz/testnet/tx/${result.digest}`,
+          });
+          
+          // Mark as broken to prevent further actions
+          setIsBroken(true);
+          
+          // Wait a bit before invalidating to allow blockchain to update
+          setTimeout(() => {
+            queryClient.invalidateQueries({ queryKey: getPiggyBankDetailsQueryKey(bankId) });
+            queryClient.invalidateQueries({ queryKey: getPiggyBankActionsQueryKey(bankId) });
+            onAction?.();
+          }, 1500);
+        },
+        onError: (error) => {
+          console.error('Break bank failed:', error);
+          // Check if error is because bank was already deleted
+          if (error.message.includes('deleted') || error.message.includes('does not exist')) {
+            setIsBroken(true);
+            alert('This piggy bank has already been broken and no longer exists.');
+          } else {
+            alert(`Failed to break piggy bank: ${error.message}`);
+          }
         },
         onSettled: () => {
           setPendingAction(null);
         }
       },
     );
-  }, [bankId, counterPackageId, signAndExecute, onAction]);
+  }, [bankId, counterPackageId, signAndExecute, onAction, queryClient]);
 
   const quickAmounts = useMemo(() => [0.1, 0.5, 1.0, 2.0, 5.0], []);
+
+  // If bank is broken, show message
+  if (isBroken) {
+    return (
+      <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-3xl p-8 shadow-2xl text-center">
+        <div className="text-6xl mb-4">🎉</div>
+        <h3 className="text-2xl font-bold text-emerald-300 mb-2">
+          Piggy Bank Broken!
+        </h3>
+        <Text className="text-slate-400 mb-4">
+          Your funds have been withdrawn and the piggy bank has been destroyed.
+        </Text>
+        <Text className="text-slate-500 text-sm">
+          This piggy bank no longer exists on the blockchain.
+        </Text>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 sm:space-y-7 md:space-y-8">
@@ -186,6 +254,23 @@ const PiggyBankActions = memo(function PiggyBankActions({ bankId, onAction }: { 
               ≈ {(parseFloat(depositAmount || "0") * SUI_TO_MIST).toLocaleString()} MIST
             </Text>
           </div>
+
+          {/* Success Message */}
+          {depositSuccess && (
+            <div className="backdrop-blur-xl bg-emerald-500/20 border border-emerald-500/40 rounded-2xl p-4 animate-fade-in">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">✅</span>
+                <div>
+                  <Text className="text-emerald-300 font-semibold text-sm">
+                    Deposit Successful!
+                  </Text>
+                  <Text className="text-emerald-400/80 text-xs">
+                    Balance will update in a moment...
+                  </Text>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Deposit Button */}
           <div className="relative group/button mt-4 sm:mt-6">
@@ -286,7 +371,6 @@ const PiggyBankActions = memo(function PiggyBankActions({ bankId, onAction }: { 
                   Cancel
                 </Button>
                 <div className="relative group/confirm">
-                  <div className="absolute inset-0 bg-red-500 rounded-xl blur-lg opacity-75 group-hover/confirm:opacity-100 transition-opacity" />
                   <Button
                     size="3"
                     onClick={breakBank}

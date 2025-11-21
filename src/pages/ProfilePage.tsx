@@ -1,6 +1,6 @@
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Share2, Copy, Check, User, ExternalLink, Loader2 } from "lucide-react";
 import { ReputationScore } from "../components/reputation/ReputationScore";
 import { ReputationHistory, ReputationHistoryEvent } from "../components/reputation/ReputationHistory";
@@ -9,6 +9,7 @@ import { NFTGallery } from "../components/nft/NFTGallery";
 import { ContributionHistory } from "../components/profile/ContributionHistory";
 import { useReputationProfile, useReputationEvents, getEventTypeString } from "../hooks/useReputationProfile";
 import { useUserNFTs } from "../hooks/useUserNFTs";
+import { useCreateReputationProfile } from "../hooks/useCreateReputationProfile";
 import { copyProfileLink, shareProfileLink } from "../utils/profileLinks";
 
 /**
@@ -34,6 +35,8 @@ export function ProfilePage() {
   const { address: urlAddress } = useParams<{ address: string }>();
   const navigate = useNavigate();
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isCreatingProfile, setIsCreatingProfile] = useState(false);
+  const createProfile = useCreateReputationProfile();
 
   // Determine which address to display
   // If URL has an address, show that profile (public view)
@@ -47,8 +50,14 @@ export function ProfilePage() {
   const { data: nfts, isLoading: nftsLoading } = useUserNFTs(profileAddress);
 
   // If viewing own profile but not connected, redirect to home
+  useEffect(() => {
+    if (isOwnProfile && !currentAccount) {
+      navigate("/");
+    }
+  }, [isOwnProfile, currentAccount, navigate]);
+
+  // Don't render if redirecting
   if (isOwnProfile && !currentAccount) {
-    navigate("/");
     return null;
   }
 
@@ -73,6 +82,19 @@ export function ProfilePage() {
       } catch (error) {
         console.error("Failed to share:", error);
       }
+    }
+  };
+
+  const handleCreateProfile = async () => {
+    if (!profileAddress) return;
+    
+    setIsCreatingProfile(true);
+    try {
+      await createProfile.mutateAsync();
+    } catch (error) {
+      console.error("Failed to create profile:", error);
+    } finally {
+      setIsCreatingProfile(false);
     }
   };
 
@@ -113,24 +135,47 @@ export function ProfilePage() {
           </p>
         </div>
 
-        <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-3xl p-12 text-center">
-          <div className="text-7xl mb-4">👤</div>
-          <h3 className="text-2xl font-bold text-white mb-2">
-            No Reputation Profile Found
-          </h3>
-          <p className="text-slate-400 max-w-md mx-auto mb-6">
-            {isOwnProfile 
-              ? "You haven't created a reputation profile yet. Join a group susu to get started!"
-              : "This user hasn't created a reputation profile yet."
-            }
-          </p>
-          {isOwnProfile && (
-            <button
-              onClick={() => navigate("/explore")}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-white font-semibold hover:shadow-lg hover:shadow-violet-500/50 transition-all"
-            >
-              Explore Groups
-            </button>
+        <div className="space-y-6 sm:space-y-8">
+          <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-3xl p-12 text-center">
+            <div className="text-7xl mb-4">👤</div>
+            <h3 className="text-2xl font-bold text-white mb-2">
+              No Reputation Profile Found
+            </h3>
+            <p className="text-slate-400 max-w-md mx-auto mb-6">
+              {isOwnProfile 
+                ? "You haven't created a reputation profile yet. Create one to track your achievements and reputation!"
+                : "This user hasn't created a reputation profile yet."
+              }
+            </p>
+            {isOwnProfile && (
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  onClick={handleCreateProfile}
+                  disabled={isCreatingProfile}
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-white font-semibold hover:shadow-lg hover:shadow-violet-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isCreatingProfile ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Creating Profile...</span>
+                    </>
+                  ) : (
+                    <span>Create Reputation Profile</span>
+                  )}
+                </button>
+                <button
+                  onClick={() => navigate("/explore")}
+                  className="px-6 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white font-semibold hover:bg-white/[0.1] transition-all"
+                >
+                  Explore Groups
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Show NFTs even without reputation profile */}
+          {nfts && nfts.length > 0 && (
+            <NFTGallery nfts={nfts} isLoading={nftsLoading} />
           )}
         </div>
       </div>

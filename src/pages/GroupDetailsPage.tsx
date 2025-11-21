@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useGroupSusu, useGroupParticipants } from "../hooks/useGroupSusu";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { joinGroupTx } from "../utils/transactions";
-import { DEVNET_COUNTER_PACKAGE_ID } from "../constants";
+import { useNetworkVariable } from "../networkConfig";
+import { DistributeRoundButton } from "../components/group/DistributeRoundButton";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface Participant {
@@ -32,6 +33,7 @@ interface GroupDetails {
 
 export function GroupDetailsPage() {
   const currentAccount = useCurrentAccount();
+  const counterPackageId = useNetworkVariable("counterPackageId");
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
@@ -115,7 +117,7 @@ export function GroupDetailsPage() {
 
     try {
       // Build the join group transaction
-      const tx = joinGroupTx(DEVNET_COUNTER_PACKAGE_ID, id);
+      const tx = joinGroupTx(counterPackageId, id);
 
       signAndExecute(
         {
@@ -369,17 +371,29 @@ export function GroupDetailsPage() {
                 </p>
               </div>
               
-              <Link
-                to={`/group/${mockGroupDetails.id}/manage`}
-                className="block w-full"
-              >
-                <button className="w-full relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-2xl blur-lg opacity-60 group-hover:opacity-100 transition-all duration-500" />
-                  <div className="relative bg-gradient-to-r from-cyan-500 to-violet-500 rounded-2xl px-6 py-3 font-bold text-white">
-                    Manage Group
-                  </div>
-                </button>
-              </Link>
+              <div className="space-y-3">
+                {/* Distribute Round Button */}
+                <DistributeRoundButton
+                  groupId={mockGroupDetails.id}
+                  groupName={mockGroupDetails.name}
+                  onSuccess={() => {
+                    queryClient.invalidateQueries({ queryKey: ["groupSusu", id] });
+                  }}
+                />
+                
+                {/* Manage Group Button */}
+                <Link
+                  to={`/group/${mockGroupDetails.id}/manage`}
+                  className="block w-full"
+                >
+                  <button className="w-full relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-2xl blur-lg opacity-60 group-hover:opacity-100 transition-all duration-500" />
+                    <div className="relative bg-gradient-to-r from-cyan-500 to-violet-500 rounded-2xl px-6 py-3 font-bold text-white">
+                      Manage Group
+                    </div>
+                  </button>
+                </Link>
+              </div>
             </div>
           )}
 

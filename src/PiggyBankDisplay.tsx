@@ -10,11 +10,23 @@ export function getPiggyBankFields(data: any) {
   if (!fields) return null;
   
   // Validate required fields exist
-  if (!fields.owner || !fields.balance || !fields.goal_amount || !fields.unlock_timestamp_ms) {
+  if (!fields.owner || fields.balance === undefined || !fields.goal_amount || !fields.unlock_timestamp_ms) {
+    console.warn('Missing required fields:', { fields });
     return null;
   }
   
-  return fields as {
+  // Balance<SUI> is an object with a value property
+  // Extract the actual balance value
+  const balanceValue = typeof fields.balance === 'object' && fields.balance !== null
+    ? fields.balance.value || '0'
+    : fields.balance;
+  
+  return {
+    owner: fields.owner,
+    balance: balanceValue,
+    goal_amount: fields.goal_amount,
+    unlock_timestamp_ms: fields.unlock_timestamp_ms,
+  } as {
     owner: string;
     balance: string;
     goal_amount: string;
@@ -59,12 +71,32 @@ const PiggyBankDisplay = memo(function PiggyBankDisplay({ bankId }: { bankId: st
       const goalNum = Number(fields.goal_amount || 1);
       const timestampNum = Number(fields.unlock_timestamp_ms || Date.now());
       
+      // Debug logging
+      console.log('PiggyBank Debug:', {
+        balanceRaw: fields.balance,
+        balanceNum,
+        goalRaw: fields.goal_amount,
+        goalNum,
+        timestampRaw: fields.unlock_timestamp_ms,
+        timestampNum,
+        currentTime: Date.now(),
+      });
+      
       const balanceSUI = balanceNum / SUI_TO_MIST;
       const goalSUI = goalNum / SUI_TO_MIST;
       const progressPercentage = goalSUI > 0 ? Math.min((balanceSUI / goalSUI) * 100, 100) : 0;
       const unlockDate = new Date(timestampNum);
       const isUnlocked = Date.now() >= unlockDate.getTime();
       const daysUntilUnlock = Math.max(0, Math.ceil((unlockDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+      
+      console.log('PiggyBank Calculated:', {
+        balanceSUI,
+        goalSUI,
+        progressPercentage,
+        unlockDate: unlockDate.toISOString(),
+        isUnlocked,
+        daysUntilUnlock,
+      });
       
       return { balanceSUI, goalSUI, progressPercentage, unlockDate, isUnlocked, daysUntilUnlock };
     } catch (error) {

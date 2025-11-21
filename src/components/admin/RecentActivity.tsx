@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSuiClient } from "@mysten/dapp-kit";
-import { DEVNET_COUNTER_PACKAGE_ID } from "../../constants";
+import { useNetworkVariable } from "../../networkConfig";
 import { LoadingSpinner } from "../../LoadingSpinner";
 
 interface ActivityEvent {
@@ -12,17 +12,20 @@ interface ActivityEvent {
 
 export function RecentActivity() {
   const suiClient = useSuiClient();
+  const counterPackageId = useNetworkVariable("counterPackageId");
 
   const { data: activities, isLoading } = useQuery({
-    queryKey: ["recentActivity"],
+    queryKey: ["recentActivity", counterPackageId],
     queryFn: async () => {
+      if (!counterPackageId) return [];
+
       try {
         const events: ActivityEvent[] = [];
 
         // Fetch reputation events
         const reputationEvents = await suiClient.queryEvents({
           query: {
-            MoveEventType: `${DEVNET_COUNTER_PACKAGE_ID}::reputation::ReputationEvent`,
+            MoveEventType: `${counterPackageId}::reputation::ReputationEvent`,
           },
           limit: 10,
           order: "descending",
@@ -54,7 +57,7 @@ export function RecentActivity() {
         // Fetch NFT minting events
         const nftEvents = await suiClient.queryEvents({
           query: {
-            MoveEventType: `${DEVNET_COUNTER_PACKAGE_ID}::nft_rewards::NFTMintedEvent`,
+            MoveEventType: `${counterPackageId}::nft_rewards::NFTMintedEvent`,
           },
           limit: 10,
           order: "descending",

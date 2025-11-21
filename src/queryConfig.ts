@@ -163,24 +163,24 @@ export const getAllGroupsQueryKey = (filters?: any, cursor?: string | null, limi
 /**
  * Generate query keys for reputation data
  */
-export const getReputationProfileQueryKey = (address: string) => ['reputationProfile', address];
-export const getReputationEventsQueryKey = (address: string) => ['reputationEvents', address];
+export const getReputationProfileQueryKey = (address: string, packageId?: string) => ['reputationProfile', address, packageId];
+export const getReputationEventsQueryKey = (address: string, packageId?: string) => ['reputationEvents', address, packageId];
 
 /**
  * Generate query keys for NFT data
  */
-export const getUserNFTsQueryKey = (address: string) => ['userNFTs', address];
-export const getNFTMintEventsQueryKey = (address: string) => ['nftMintEvents', address];
+export const getUserNFTsQueryKey = (address: string, packageId?: string) => ['userNFTs', address, packageId];
+export const getNFTMintEventsQueryKey = (address: string, packageId?: string) => ['nftMintEvents', address, packageId];
 
 /**
  * Generate query keys for user groups
  */
-export const getUserGroupsQueryKey = (address: string) => ['userGroups', address];
+export const getUserGroupsQueryKey = (address: string, packageId?: string) => ['userGroups', address, packageId];
 
 /**
  * Generate query key for platform stats
  */
-export const getPlatformStatsQueryKey = () => ['platformStats'];
+export const getPlatformStatsQueryKey = (packageId?: string) => ['platformStats', packageId];
 
 /**
  * Cache invalidation helpers
@@ -191,10 +191,10 @@ export const getPlatformStatsQueryKey = () => ['platformStats'];
 /**
  * Query keys to invalidate after a user joins a group
  */
-export const getInvalidateKeysAfterJoinGroup = (userAddress: string, groupId: string) => [
+export const getInvalidateKeysAfterJoinGroup = (userAddress: string, groupId: string, packageId?: string) => [
   getGroupSusuQueryKey(groupId),
   getGroupParticipantsQueryKey(groupId),
-  getUserGroupsQueryKey(userAddress),
+  getUserGroupsQueryKey(userAddress, packageId),
   getAllGroupsQueryKey(),
   getPlatformStatsQueryKey(),
 ];
@@ -202,29 +202,29 @@ export const getInvalidateKeysAfterJoinGroup = (userAddress: string, groupId: st
 /**
  * Query keys to invalidate after a contribution is made
  */
-export const getInvalidateKeysAfterContribution = (userAddress: string, groupId: string) => [
+export const getInvalidateKeysAfterContribution = (userAddress: string, groupId: string, packageId?: string) => [
   getGroupSusuQueryKey(groupId),
   getGroupParticipantsQueryKey(groupId),
-  getUserGroupsQueryKey(userAddress),
-  getReputationProfileQueryKey(userAddress),
-  getReputationEventsQueryKey(userAddress),
+  getUserGroupsQueryKey(userAddress, packageId),
+  getReputationProfileQueryKey(userAddress, packageId),
+  getReputationEventsQueryKey(userAddress, packageId),
 ];
 
 /**
  * Query keys to invalidate after a round distribution
  */
-export const getInvalidateKeysAfterDistribution = (groupId: string, recipientAddress: string) => [
+export const getInvalidateKeysAfterDistribution = (groupId: string, recipientAddress: string, packageId?: string) => [
   getGroupSusuQueryKey(groupId),
   getGroupParticipantsQueryKey(groupId),
-  getReputationProfileQueryKey(recipientAddress),
-  getReputationEventsQueryKey(recipientAddress),
+  getReputationProfileQueryKey(recipientAddress, packageId),
+  getReputationEventsQueryKey(recipientAddress, packageId),
   getPlatformStatsQueryKey(),
 ];
 
 /**
  * Query keys to invalidate after a cycle completes
  */
-export const getInvalidateKeysAfterCycleComplete = (groupId: string, participantAddresses: string[]) => {
+export const getInvalidateKeysAfterCycleComplete = (groupId: string, participantAddresses: string[], packageId?: string) => {
   const keys = [
     getGroupSusuQueryKey(groupId),
     getGroupParticipantsQueryKey(groupId),
@@ -234,8 +234,8 @@ export const getInvalidateKeysAfterCycleComplete = (groupId: string, participant
   
   // Add reputation keys for all participants
   participantAddresses.forEach(address => {
-    keys.push(getReputationProfileQueryKey(address));
-    keys.push(getReputationEventsQueryKey(address));
+    keys.push(getReputationProfileQueryKey(address, packageId));
+    keys.push(getReputationEventsQueryKey(address, packageId));
   });
   
   return keys;
@@ -244,17 +244,17 @@ export const getInvalidateKeysAfterCycleComplete = (groupId: string, participant
 /**
  * Query keys to invalidate after an NFT is minted
  */
-export const getInvalidateKeysAfterNFTMint = (recipientAddress: string) => [
-  getUserNFTsQueryKey(recipientAddress),
-  getNFTMintEventsQueryKey(recipientAddress),
+export const getInvalidateKeysAfterNFTMint = (recipientAddress: string, packageId?: string) => [
+  getUserNFTsQueryKey(recipientAddress, packageId),
+  getNFTMintEventsQueryKey(recipientAddress, packageId),
   getPlatformStatsQueryKey(),
 ];
 
 /**
  * Query keys to invalidate after a group is created
  */
-export const getInvalidateKeysAfterGroupCreate = (creatorAddress: string) => [
-  getUserGroupsQueryKey(creatorAddress),
+export const getInvalidateKeysAfterGroupCreate = (creatorAddress: string, packageId?: string) => [
+  getUserGroupsQueryKey(creatorAddress, packageId),
   getAllGroupsQueryKey(),
   getPlatformStatsQueryKey(),
 ];
@@ -262,7 +262,7 @@ export const getInvalidateKeysAfterGroupCreate = (creatorAddress: string) => [
 /**
  * Query keys to invalidate after a reputation profile is created
  */
-export const getInvalidateKeysAfterReputationCreate = (userAddress: string) => [
-  getReputationProfileQueryKey(userAddress),
+export const getInvalidateKeysAfterReputationCreate = (userAddress: string, packageId?: string) => [
+  getReputationProfileQueryKey(userAddress, packageId),
   getPlatformStatsQueryKey(),
 ];

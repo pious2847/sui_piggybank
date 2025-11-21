@@ -4,7 +4,8 @@ import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useSignAndExecute, getTransactionErrorMessage } from "../../hooks/useSignAndExecute";
 import { TransactionConfirmationModal } from "../TransactionConfirmationModal";
 import { transferAdminCapTx } from "../../utils/transactions";
-import { DEVNET_COUNTER_PACKAGE_ID, PLATFORM_CONFIG_ID } from "../../constants";
+import { PLATFORM_CONFIG_ID } from "../../constants";
+import { useNetworkVariable } from "../../networkConfig";
 
 export interface TransferAdminFormProps {
   adminCapId: string;
@@ -16,6 +17,7 @@ export interface TransferAdminFormProps {
  */
 export function TransferAdminForm({ adminCapId }: TransferAdminFormProps) {
   const currentAccount = useCurrentAccount();
+  const counterPackageId = useNetworkVariable("counterPackageId");
   const { execute, status, result, error, reset } = useSignAndExecute();
   const [showModal, setShowModal] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -57,7 +59,7 @@ export function TransferAdminForm({ adminCapId }: TransferAdminFormProps) {
 
     // Build the transaction
     const tx = transferAdminCapTx(
-      DEVNET_COUNTER_PACKAGE_ID,
+      counterPackageId,
       adminCapId,
       PLATFORM_CONFIG_ID,
       newAdminAddress

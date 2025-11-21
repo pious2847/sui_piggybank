@@ -1,13 +1,12 @@
 /**
  * React hooks for Walrus integration
  * 
- * Now using upgraded packages: @mysten/sui@1.45.0 and @mysten/dapp-kit@0.19.9
+ * Using WalrusService with HTTP API instead of SDK to avoid WASM issues
  * Provides hooks for uploading and fetching data from Walrus with React Query integration
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
-import { useSignAndExecuteTransaction, useCurrentAccount } from '@mysten/dapp-kit';
+import { useCurrentAccount } from '@mysten/dapp-kit';
 import {
   fetchFromWalrus,
   fetchJSONFromWalrus,
@@ -15,11 +14,7 @@ import {
   getWalrusUrl,
   WalrusError,
 } from '../utils/walrus';
-
-// Initialize Sui client for Walrus
-const suiClient = new SuiClient({
-  url: getFullnodeUrl('testnet'),
-});
+import { WalrusService } from '../services/walrus.service';
 
 /**
  * Hook to fetch text data from Walrus
@@ -88,94 +83,45 @@ export function useWalrusBlob(
 }
 
 /**
- * Hook to upload data to Walrus using the official SDK with wallet signing
+ * Hook to upload data to Walrus using HTTP API
  * 
- * This uses the WalrusClient from @mysten/walrus with proper wallet integration
+ * This uses the WalrusService which directly calls the Walrus HTTP endpoints
  */
 export function useWalrusUpload() {
   const queryClient = useQueryClient();
-  const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
   const currentAccount = useCurrentAccount();
 
   return useMutation({
     mutationFn: async ({
       data,
-      epochs = 5,
     }: {
       data: string | Blob | Uint8Array | File;
-      epochs?: number;
     }) => {
       if (!currentAccount) {
         throw new Error('No wallet connected. Please connect your wallet first.');
       }
 
-      // Import Walrus SDK
-      const { WalrusClient, WalrusFile } = await import('@mysten/walrus');
-      
-      // Create Walrus client
-      const walrusClient = new WalrusClient({
-        network: 'testnet' as any,
-        suiClient: suiClient as any,
-      });
-
-      // Convert data to Uint8Array
-      let contents: Uint8Array;
-      let identifier = 'upload';
+      // Convert data to File if needed
+      let file: File;
 
       if (data instanceof File) {
-        contents = new Uint8Array(await data.arrayBuffer());
-        identifier = data.name;
+        file = data;
       } else if (typeof data === 'string') {
-        contents = new TextEncoder().encode(data);
+        const blob = new Blob([data], { type: 'text/plain' });
+        file = new File([blob], 'upload.txt', { type: 'text/plain' });
       } else if (data instanceof Blob) {
-        contents = new Uint8Array(await data.arrayBuffer());
+        file = new File([data], 'upload.bin', { type: 'application/octet-stream' });
       } else {
-        contents = data;
+        // Convert Uint8Array by creating a new one to ensure proper type
+        const uint8Array = new Uint8Array(data as Uint8Array);
+        const blob = new Blob([uint8Array], { type: 'application/octet-stream' });
+        file = new File([blob], 'upload.bin', { type: 'application/octet-stream' });
       }
 
-      // Create WalrusFile
-      const walrusFile = WalrusFile.from({
-        contents,
-        identifier,
-      });
+      // Upload using WalrusService
+      const result = await WalrusService.uploadFile(file, currentAccount.address);
 
-      // Create write flow for browser wallet integration
-      const flow = walrusClient.writeFilesFlow({
-        files: [walrusFile],
-      });
-
-      // Step 1: Encode the file
-      await flow.encode();
-
-      // Step 2: Register the blob on-chain (requires wallet signature)
-      const registerTx = flow.register({
-        epochs,
-        owner: currentAccount.address,
-        deletable: true,
-      });
-
-      const { digest } = await signAndExecuteTransaction({
-        transaction: registerTx,
-      });
-
-      // Step 3: Upload to storage nodes
-      await flow.upload({ digest });
-
-      // Step 4: Certify the blob (requires wallet signature)
-      const certifyTx = flow.certify();
-      await signAndExecuteTransaction({
-        transaction: certifyTx,
-      });
-
-      // Step 5: Get the uploaded files
-      const files = await flow.listFiles();
-      const blobId = files[0]?.blobId;
-
-      if (!blobId) {
-        throw new Error('No blob ID returned from upload');
-      }
-
-      return blobId;
+      return result.blobId;
     },
     onSuccess: (blobId) => {
       queryClient.invalidateQueries({ queryKey: ['walrus'] });
@@ -188,81 +134,26 @@ export function useWalrusUpload() {
 }
 
 /**
- * Hook to upload JSON data to Walrus with wallet signing
+ * Hook to upload JSON data to Walrus using HTTP API
  */
 export function useWalrusUploadJSON() {
   const queryClient = useQueryClient();
-  const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
   const currentAccount = useCurrentAccount();
 
   return useMutation({
     mutationFn: async ({
       data,
-      epochs = 5,
     }: {
       data: any;
-      epochs?: number;
     }) => {
       if (!currentAccount) {
         throw new Error('No wallet connected. Please connect your wallet first.');
       }
 
-      // Import Walrus SDK
-      const { WalrusClient, WalrusFile } = await import('@mysten/walrus');
-      
-      // Create Walrus client
-      const walrusClient = new WalrusClient({
-        network: 'testnet' as any,
-        suiClient: suiClient as any,
-      });
+      // Upload using WalrusService
+      const result = await WalrusService.uploadMetadata(data, currentAccount.address);
 
-      // Convert JSON to Uint8Array
-      const jsonString = JSON.stringify(data, null, 2);
-      const contents = new TextEncoder().encode(jsonString);
-
-      // Create WalrusFile
-      const walrusFile = WalrusFile.from({
-        contents,
-        identifier: 'metadata.json',
-      });
-
-      // Create write flow for browser wallet integration
-      const flow = walrusClient.writeFilesFlow({
-        files: [walrusFile],
-      });
-
-      // Step 1: Encode the file
-      await flow.encode();
-
-      // Step 2: Register the blob on-chain (requires wallet signature)
-      const registerTx = flow.register({
-        epochs,
-        owner: currentAccount.address,
-        deletable: true,
-      });
-
-      const { digest } = await signAndExecuteTransaction({
-        transaction: registerTx,
-      });
-
-      // Step 3: Upload to storage nodes
-      await flow.upload({ digest });
-
-      // Step 4: Certify the blob (requires wallet signature)
-      const certifyTx = flow.certify();
-      await signAndExecuteTransaction({
-        transaction: certifyTx,
-      });
-
-      // Step 5: Get the uploaded files
-      const files = await flow.listFiles();
-      const blobId = files[0]?.blobId;
-
-      if (!blobId) {
-        throw new Error('No blob ID returned from upload');
-      }
-
-      return blobId;
+      return result.blobId;
     },
     onSuccess: (blobId) => {
       queryClient.invalidateQueries({ queryKey: ['walrus'] });

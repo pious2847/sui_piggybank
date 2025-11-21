@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSuiClient } from "@mysten/dapp-kit";
-import { DEVNET_COUNTER_PACKAGE_ID,ADMIN_CAP_ID  } from "../constants";
+import { useNetworkVariable } from "../networkConfig";
 
 
 /**
@@ -9,39 +9,25 @@ import { DEVNET_COUNTER_PACKAGE_ID,ADMIN_CAP_ID  } from "../constants";
  */
 export function useAdminCap(address: string | undefined) {
   const suiClient = useSuiClient();
+  const counterPackageId = useNetworkVariable("counterPackageId");
 
   return useQuery({
-    queryKey: ["adminCap", address],
+    queryKey: ["adminCap", address, counterPackageId],
     queryFn: async () => {
-      if (!address) return null;
+      if (!address || !counterPackageId) return null;
 
       try {
         // Try to find AdminCap with the current package ID
         let { data } = await suiClient.getOwnedObjects({
           owner: address,
           filter: {
-            StructType: `${DEVNET_COUNTER_PACKAGE_ID}::admin::AdminCap`,
+            StructType: `${counterPackageId}::admin::AdminCap`,
           },
           options: {
             showContent: true,
             showType: true,
           },
         });
-
-        // If not found, try with the original package ID (for AdminCaps created before upgrade)
-        if (data.length === 0) {
-          const originalResult = await suiClient.getOwnedObjects({
-            owner: address,
-            filter: {
-              StructType: `${ADMIN_CAP_ID }::admin::AdminCap`,
-            },
-            options: {
-              showContent: true,
-              showType: true,
-            },
-          });
-          data = originalResult.data;
-        }
 
         if (data.length === 0) {
           return null;
