@@ -2,6 +2,7 @@
 name = "counter"
 version = "0.0.1"
 edition = "2024.beta"
+published-at = "0x82c9dfda9ac3821f1b652388cc8d5651738956a2255bece3c8817050124c12d1"
 
 [dependencies]
 Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/devnet" }

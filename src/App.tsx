@@ -1,82 +1,55 @@
-import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
-import { Box, Container, Flex, Heading } from "@radix-ui/themes";
-import SBank from "./SBank";
-import './index.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Header } from "./components/layout/Header";
+import { Sidebar } from "./components/layout/Sidebar";
+import { Footer } from "./components/layout/Footer";
+import { DashboardPage } from "./pages/DashboardPage";
+import { ExplorePage } from "./pages/ExplorePage";
+import { CreateGroupPage } from "./pages/CreateGroupPage";
+import { ProfilePage } from "./pages/ProfilePage";
+import { GroupDetailsPage } from "./pages/GroupDetailsPage";
+import { GroupManagementPage } from "./pages/GroupManagementPage";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { PiggyBanksPage } from "./pages/PiggyBanksPage";
+import "./index.css";
 
 function App() {
-  const currentAccount = useCurrentAccount();
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      {/* Header */}
-      <Flex
-        position="sticky"
-        px="6"
-        py="4"
-        justify="between"
-        align="center"
-        style={{
-          background: "rgba(255, 255, 255, 0.1)",
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
-          zIndex: 50,
-        }}
-      >
-        <Box>
-          <Flex align="center" gap="3">
-            <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-yellow-500 rounded-full flex items-center justify-center">
-              🐷
-            </div>
-            <Heading size="6" style={{ 
-              background: "linear-gradient(45deg, #ff6b6b, #4ecdc4)", 
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              fontWeight: "bold"
-            }}>
-              Sui Piggy Bank
-            </Heading>
-          </Flex>
-        </Box>
-
-        <Box>
-          <div style={{
-            background: "rgba(255, 255, 255, 0.1)",
-            borderRadius: "12px",
-            padding: "4px",
-            backdropFilter: "blur(10px)",
-          }}>
-            <ConnectButton />
-          </div>
-        </Box>
-      </Flex>
-
-      {/* Main Content */}
-      <Container size="4" px="4">
-        <div className="py-8">
-          {currentAccount ? (
-            <SBank />
-          ) : (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-              <div className="bg-white/10 backdrop-blur-md rounded-3xl p-12 border border-white/20 shadow-2xl max-w-md mx-auto">
-                <div className="text-8xl mb-6">🐷</div>
-                <Heading size="7" mb="4" style={{ color: "white" }}>
-                  Welcome to Sui Piggy Bank
-                </Heading>
-                <p className="text-gray-300 text-lg mb-8 leading-relaxed">
-                  Save your SUI tokens with goals and time locks. 
-                  Connect your wallet to start your savings journey!
-                </p>
-                <div className="bg-gradient-to-r from-pink-500 to-yellow-500 p-1 rounded-full">
-                  <div className="bg-gray-900 rounded-full px-6 py-3">
-                    <span className="text-white font-semibold">Connect Wallet to Begin</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+    <Router>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white relative overflow-hidden flex flex-col">
+        {/* Enhanced animated background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-full blur-3xl animate-float-delayed" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-full blur-3xl animate-pulse-slow" />
         </div>
-      </Container>
-    </div>
+
+        {/* Header */}
+        <Header />
+
+        {/* Main Layout with Sidebar */}
+        <div className="flex flex-1 relative z-10">
+          <Sidebar />
+          
+          {/* Main Content */}
+          <main className="flex-1 overflow-auto">
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/explore" element={<ExplorePage />} />
+              <Route path="/create-group" element={<CreateGroupPage />} />
+              <Route path="/piggy-banks" element={<PiggyBanksPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/:address" element={<ProfilePage />} />
+              <Route path="/group/:id" element={<GroupDetailsPage />} />
+              <Route path="/group/:id/manage" element={<GroupManagementPage />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+            </Routes>
+          </main>
+        </div>
+
+        {/* Footer */}
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
